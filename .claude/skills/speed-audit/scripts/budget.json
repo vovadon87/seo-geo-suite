@@ -1,0 +1,17 @@
+{
+  "_comment": "Бюджеты по умолчанию для page_weight.py. Это ориентиры для аудита, а не требования поисковиков; меняйте под нишу и аудиторию.",
+  "total_transfer_kb": 2000,
+  "total_requests": 80,
+  "js_transfer_kb": 500,
+  "css_transfer_kb": 150,
+  "image_transfer_kb": 1200,
+  "font_transfer_kb": 200,
+  "third_party_share_pct": 35,
+  "single_image_kb": 250,
+  "ttfb_ms": 800,
+  "lcp_ms": 2500,
+  "cls": 0.1,
+  "long_tasks_total_ms": 400,
+  "blocking_head_scripts": 2,
+  "dom_nodes": 1500
+}

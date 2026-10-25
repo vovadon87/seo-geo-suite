@@ -1,0 +1,8 @@
+audit-out/
+semantic-out/
+outputs/
+__pycache__/
+*.pyc
+.env
+*.key
+node_modules/
