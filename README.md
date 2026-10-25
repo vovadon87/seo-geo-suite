@@ -9,8 +9,9 @@ seo-geo-suite/
 ├── _shared/rules.md            правила: доказательства, P0–P3, формат находки, границы охвата
 ├── seo-geo/                    роутер + onboard (исследование ниши, профиль сайта)
 │   ├── SKILL.md
-│   ├── references/onboard.md
-│   └── templates/{site-context.md, profile.md}
+│   ├── references/{onboard.md, full-audit.md}
+│   ├── templates/{site-context.md, profile.md, full-audit-report.md}
+│   └── scripts/                merge_findings.py, run_tests.py
 ├── tech-audit/                 технический аудит
 │   ├── SKILL.md
 │   ├── references/checks.md    критерии, ИИ-боты, таблица «где вносить правки» по CMS
@@ -32,18 +33,28 @@ seo-geo-suite/
 │   └── scripts/                nap_check.py, run_tests.py (использует tech-audit/scripts/common.py)
 ├── seo-report/                 сравнение периодов
 │   ├── SKILL.md, references/measurement.md, templates/period-report.md
-│   └── scripts/                period_compare.py, run_tests.py
-├── agents/seo-geo-writer.md    агент-автор (skills: seo-geo, content-geo, semantics)
+│   └── scripts/                period_compare.py, api_fetch.py, run_tests.py, run_api_tests.py
+├── agents/
+│   ├── seo-geo-writer.md       агент-автор (skills: seo-geo, content-geo, semantics)
+│   ├── seo-tech-auditor.md     аудитор техники (только чтение)
+│   ├── seo-speed-auditor.md    аудитор скорости (только чтение)
+│   └── seo-content-auditor.md  аудитор контента, семантики, локального SEO (только чтение)
 └── evals/scenarios.md          сценарии проверки
 ```
 
 ## Что проверено
 - `tech-audit/scripts/run_tests.py`: 10 тестов на локальном сайте с заведомыми проблемами (дубли, битые ссылки, цепочки редиректов, noindex в sitemap, сироты, глубина, мягкая 404, шаблонная разметка, robots).
 - `tech-audit/scripts/run_render_tests.py`: 7 тестов `render_check.py` (SPA с контентом, ссылками, мета и разметкой только после JS; статичная страница без находок; noindex, снятый JS).
+- `seo-report/scripts/run_api_tests.py`: 8 тестов `api_fetch.py` на локальном имитаторе GSC и Вебмастера (структура запросов и ответов по документации, пагинация, ошибки, совместимость CSV с `period_compare.py`).
+- `seo-geo/scripts/run_tests.py`: 8 тестов `merge_findings.py` (чтение четырёх форматов находок, объединение дублей, сортировка, вопросы владельцу).
+- Агенты-аудиторы на реальном сайте **не запускались**: это описания процедур, их работа зависит от окружения (доступность субагентов, Chromium, ключи).
 - `speed-audit/scripts/run_tests.py`: 7 тестов; `page_weight.py` и `lighthouse_run.py` прошли сквозной запуск в Chromium и Lighthouse 12 на локальном «тяжёлом» сайте.
 - Контрольный прогон `site_crawl.py` на публичном сайте (gzip, редиректы, разбор HTML без кавычек в атрибутах).
 - Фаза 2: `semantics` 13 тестов, `content-geo` 13, `local-seo` 9, `seo-report` 13 (синтетические данные; кластеризатор проверен на нише «ремонт квартир»). Кластеры и интент — черновик для проверки человеком, частотность Wordstat скрипты не выдумывают.
-- **Не проверено вживую:** вызовы PSI и CrUX API (нужен ключ Google; разбор ответов проверен на синтетических данных по документации). Первый реальный запуск с ключом — контрольная точка.
+- **Не проверено вживую:** вызовы GSC API и API Вебмастера (нет токенов); а также вызовы PSI и CrUX API (нужен ключ Google; разбор ответов проверен на синтетических данных по документации). Первый реальный запуск с ключом — контрольная точка.
+
+## Полный аудит агентами
+Агенты лежат в `agents/` (положить в `.claude/agents/` репозитория или `~/.claude/agents/`). Главный сеанс запускает трёх аудиторов параллельно, сводит находки `seo-geo/scripts/merge_findings.py` и пишет итог по `seo-geo/templates/full-audit-report.md`. Порядок и контракт ответа — `seo-geo/references/full-audit.md`. Стоит больше токенов, чем один модуль; для малых сайтов запускайте модули по очереди.
 
 ## Установка
 
@@ -63,7 +74,7 @@ seo-geo-suite/
 - Скрипты `wordstat_io.py`, `quality_checks.py`, `md_to_html.py`, `build_pdf.py` скопированы из репозитория без изменений.
 
 ## Дальше (по желанию)
-Подключение Вебмастера и GSC по API, мониторинг по расписанию (только с разрешения владельца), агенты-аудиторы для параллельного запуска, прогон на реальных сайтах разных ниш.
+Мониторинг по расписанию (только с разрешения владельца), прогон на реальных сайтах разных ниш.
 
 ## Ограничения
 - `site_crawl.py` не исполняет JavaScript (для этого есть `render_check.py`: 10 страниц по умолчанию, из места запуска), не знает статус индексации и не читает логи; охват ограничен `--max-pages`.
